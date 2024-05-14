@@ -1,0 +1,37 @@
+<!-- user.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h2 class="CoffeeShop">CoffeeShop</h2>
+        <nav class="Navigation-Bar">
+            <!-- Navigation links will be rendered here -->
+        </nav>
+    </header>
+
+    <section class="user-section">
+        <div class="user-container">
+            <h2>User Information</h2>
+            <div id="user-info">
+                <!-- User information will be rendered here -->
+            </div>
+            <h3>Update User Information</h3>
+            <form id="user-update-form">
+                <input type="text" id="new-username" placeholder="New Username" required>
+                <input type="email" id="new-email" placeholder="New Email" required>
+                <input type="password" id="new-password" placeholder="New Password" required>
+                <button type="submit" id="update-user-btn" class="update-user-btn">Update</button>
+            </form>
+            <button id="delete-user-btn" class="delete-user-btn">Delete Account</button>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

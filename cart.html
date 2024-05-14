@@ -1,0 +1,37 @@
+<!-- cart.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h2 class="CoffeeShop">CoffeeShop</h2>
+        <nav class="Navigation-Bar">
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart</a>
+            <a href="checkout.html">Checkout</a>
+            <a href="user.html">Users</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+    </header>
+
+    <section class="cart-section">
+        <div class="cart-container" style="display: none;">
+            <h2>Your Cart</h2>
+            <div id="cart-list" class="cart-list">
+                <!-- Cart items will be rendered here -->
+            </div>
+            <div id="cart-total" class="cart-total">
+                <p>Total: $<span id="total-price">0.00</span></p>
+            </div>
+            <a href="checkout.html" class="checkout-btn">Proceed to Checkout</a>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

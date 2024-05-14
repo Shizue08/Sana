@@ -1,0 +1,49 @@
+<!-- checkout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h2 class="CoffeeShop">CoffeeShop</h2>
+        <nav class="Navigation-Bar">
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart</a>
+            <a href="checkout.html">Checkout</a>
+            <a href="user.html">Users</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+    </header>
+
+    <section class="checkout-section">
+        <div class="checkout-container">
+            <h2>Checkout</h2>
+            <div id="checkout-cart-items" class="checkout-cart-items">
+                <!-- Checkout items will be rendered here -->
+            </div>
+            <div id="cart-total" class="cart-total">
+                <p>Total: $<span id="total-price">0.00</span></p>
+            </div>
+            <form id="checkout-form" class="checkout-form">
+                <h3>Shipping Information</h3>
+                <input type="text" id="full-name" placeholder="Full Name" required>
+                <input type="text" id="address" placeholder="Address" required>
+                <input type="tel" id="phone" placeholder="Phone Number" required>
+                <h3>Payment Method</h3>
+                <select id="payment-method" required>
+                    <option value="">Select Payment Method</option>
+                    <option value="credit-card">Credit Card</option>
+                    <option value="paypal">PayPal</option>
+                </select>
+                <button type="submit">Place Order</button>
+            </form>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
