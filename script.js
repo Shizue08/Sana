@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Admin panel functionality
     const adminEmail = "admin@example.com";
     const adminPassword = "admin123";
-
+    const adminLogin = document.querySelector(".admin-login");
+    const adminLoginHeading = document.querySelector(".admin-container > h2");
     const adminLoginBtn = document.getElementById("admin-login-btn");
     const adminPanel = document.getElementById("admin-panel");
     const productList = document.getElementById("product-list");
@@ -65,7 +66,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = document.getElementById("admin-password").value;
 
             if (email === adminEmail && password === adminPassword) {
-                adminPanel.style.display = "block";
+                adminLogin.style.display = "none"; // Hide the admin login form
+                adminLoginHeading.style.display = "none"; // Hide the admin login heading
+                adminPanel.style.display = "block"; // Show the admin panel
                 renderProductList();
             } else {
                 alert("Invalid email or password");
@@ -176,236 +179,161 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
+        
     
         // Retrieve user information from localStorage
-        function getUser() {
-            const userString = localStorage.getItem('user');
-            return userString ? JSON.parse(userString) : null;
-        }
-    
-        // Save user information to localStorage
-        function saveUser(username, email, password) {
-            const existingUser = getUser();
-            if (existingUser && (existingUser.username === username || existingUser.email === email)) {
-                alert("Username or email already exists. Please choose a different one.");
-                return;
-            }
-    
-            const user = { username, email, password };
-            localStorage.setItem('user', JSON.stringify(user));
-        }
-    
-        // Event listener for the user information update form submission
-        const userUpdateForm = document.getElementById('user-update-form');
-        if (userUpdateForm) {
-            userUpdateForm.addEventListener('submit', (event) => {
+function getLoggedInUser() {
+    const userString = localStorage.getItem('loggedInUser');
+    return userString ? JSON.parse(userString) : null;
+}
+
+// Save user information to localStorage
+function saveUser(username, email, password) {
+    const user = { username, email, password };
+    localStorage.setItem('loggedInUser', JSON.stringify(user));
+}
+
+// Update the navigation bar
+function updateNavigationBar() {
+    const navigationBar = document.querySelector('.Navigation-Bar');
+    const loggedInUser = getLoggedInUser();
+
+    // Clear the navigation bar
+    navigationBar.innerHTML = '';
+
+    if (loggedInUser) {
+        // User is logged in
+        const userLink = document.createElement('a');
+        userLink.href = 'user.html';
+        userLink.textContent = `User: ${loggedInUser.username}`;
+        navigationBar.appendChild(userLink);
+    } else {
+        // User is not logged in
+        const loginLink = document.createElement('a');
+        loginLink.href = 'index.html';
+        loginLink.textContent = 'Login';
+        navigationBar.appendChild(loginLink);
+
+        const registerLink = document.createElement('a');
+        registerLink.href = 'register.html';
+        registerLink.textContent = 'Register';
+        navigationBar.appendChild(registerLink);
+    }
+}
+
+function updateNavigationBar() {
+    const navigationBar = document.querySelector('.Navigation-Bar');
+    const loggedInUser = getLoggedInUser();
+
+    // Clear the navigation bar
+    navigationBar.innerHTML = '';
+
+    if (loggedInUser) {
+        // User is logged in
+        const userLink = document.createElement('a');
+        userLink.href = 'user.html';
+        userLink.textContent = `User: ${loggedInUser.username}`;
+        navigationBar.appendChild(userLink);
+
+        const menuLink = document.createElement('a');
+        menuLink.href = 'menu.html';
+        menuLink.textContent = 'Menu';
+        navigationBar.appendChild(menuLink);
+
+        const cartLink = document.createElement('a');
+        cartLink.href = 'cart.html';
+        cartLink.textContent = 'Cart';
+        navigationBar.appendChild(cartLink);
+    } else {
+        // User is not logged in
+        const loginLink = document.createElement('a');
+        loginLink.href = 'index.html';
+        loginLink.textContent = 'Login';
+        navigationBar.appendChild(loginLink);
+
+        const registerLink = document.createElement('a');
+        registerLink.href = 'register.html';
+        registerLink.textContent = 'Register';
+        navigationBar.appendChild(registerLink);
+    }
+}
+
+
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+        // Registration code 
+        const registerForm = document.getElementById('register-form');
+        if (registerForm) {
+            registerForm.addEventListener('submit', (event) => {
                 event.preventDefault();
-    
-                const newUsername = document.getElementById('new-username').value;
-                const newEmail = document.getElementById('new-email').value;
-                const newPassword = document.getElementById('new-password').value;
-    
-                if (newUsername && newEmail && newPassword) {
-                    saveUser(newUsername, newEmail, newPassword);
-                    alert('User information updated successfully!');
-                    // Update the user link in the navigation bar
-                    const userLink = document.querySelector('.Navigation-Bar a[href="user.html"]');
-                    if (userLink) {
-                        userLink.textContent = `User: ${newUsername}`;
-                    }
-                    // Redirect to the menu page or any other page
-                    window.location.href = 'menu.html';
+                const username = document.getElementById('register-username').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+
+                // Check if the username or email already exists
+                const usernameTaken = registeredUsers.some(user => user.username === username);
+                const emailTaken = registeredUsers.some(user => user.email === email);
+
+                if (usernameTaken) {
+                    alert('Username already taken. Please choose a different username.');
+                } else if (emailTaken) {
+                    alert('Email already registered. Please use a different email.');
                 } else {
-                    alert('Please fill in all the required fields.');
+                    // Create a new user object
+                    const newUser = {
+                        username,
+                        email,
+                        password
+                    };
+
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+                    // Add the new user to the registeredUsers array
+                    registeredUsers.push(newUser);
+
+                    // Clear the form inputs
+                    document.getElementById('register-username').value = '';
+                    document.getElementById('register-email').value = '';
+                    document.getElementById('register-password').value = '';
+
+                    alert('Registration successful!');
                 }
             });
         }
-    
-        // Event listener for the user deletion
-        const deleteUserBtn = document.getElementById('delete-user-btn');
-        if (deleteUserBtn) {
-            deleteUserBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete your account?')) {
-                    localStorage.removeItem('user');
-                    alert('Your account has been deleted.');
-                    // Remove the user link from the navigation bar
-                    const userLink = document.querySelector('.Navigation-Bar a[href="user.html"]');
-                    if (userLink) {
-                        userLink.remove();
-                    }
-                    // Add login and register links to the navigation bar
-                    const navigationBar = document.querySelector('.Navigation-Bar');
-                    const loginLink = document.createElement('a');
-                    loginLink.href = 'index.html';
-                    loginLink.textContent = 'Login';
-                    navigationBar.appendChild(loginLink);
-    
-                    const registerLink = document.createElement('a');
-                    registerLink.href = 'register.html';
-                    registerLink.textContent = 'Register';
-                    navigationBar.appendChild(registerLink);
-    
-                    // Redirect to the login page or any other page
-                    window.location.href = 'index.html';
-                }
-            });
-        }
-    
-        // Render user information on the user page
-        function renderUserInfo() {
-            const userInfo = document.getElementById('user-info');
-            const loggedInUser = getUser();
-    
-            if (loggedInUser) {
-                userInfo.innerHTML = `
-                    <p>Username: ${loggedInUser.username}</p>
-                    <p>Email: ${loggedInUser.email}</p>
-                    <button id="logout-btn">Logout</button>
-                `;
-    
-                // Add event listener for the logout button
-                const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', logoutUser);
-                }
-            } else {
-                userInfo.innerHTML = '<p>You are not logged in.</p>';
-            }
-    
-            // Update the navigation bar
-            updateNavigationBar();
-        }
-    
-        // Render user information on the user page
-        if (window.location.pathname.includes('user.html')) {
-            renderUserInfo();
-        }
-    
-        // Logout function for the logged-in user
-        function logoutUser() {
-            console.log('Logging out user');
-            localStorage.removeItem('user');
-            updateNavigationBar();
-            window.location.href = 'index.html';
-        }
-    
-        function updateNavigationBar() {
-            const navigationBar = document.querySelector('.Navigation-Bar');
-            const loggedInUser = getUser();
-    
-            // Clear the navigation bar
-            navigationBar.innerHTML = '';
-    
-            if (loggedInUser) {
-                // User is logged in
-                const userLink = document.createElement('a');
-                userLink.href = 'user.html';
-                userLink.textContent = `User: ${loggedInUser.username}`;
-                navigationBar.appendChild(userLink);
-            } else {
-                // User is not logged in
-                const loginLink = document.createElement('a');
-                loginLink.href = 'index.html';
-                loginLink.textContent = 'Login';
-                navigationBar.appendChild(loginLink);
-    
-                const registerLink = document.createElement('a');
-                registerLink.href = 'register.html';
-                registerLink.textContent = 'Register';
-                navigationBar.appendChild(registerLink);
-            }
-        }
 
+        // Login code
+        const loginForm = document.querySelector('.form-box.login form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
 
-                            // Retrieve user information from localStorage
-            function getUser() {
-                const userString = localStorage.getItem('user');
-                return userString ? JSON.parse(userString) : null;
-            }
+                // Strict login validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]).{8,}$/;
 
-            // Event listener for the login form submission
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) {
-                loginForm.addEventListener('submit', (event) => {
-                    event.preventDefault();
-                    const email = document.getElementById('login-email').value;
-                    const password = document.getElementById('login-password').value;
-                    const user = getUser();
+                // Check if the entered email and password match any registered user
+                const validUser = registeredUsers.find(user => user.email === email && user.password === password);
 
-                    // Strict login validation
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]).{8,}$/;
-
-                    if (user && user.email === email) {
-                        if (user.password === password) {
-                            // Email and password match
-                            if (emailRegex.test(email) && passwordRegex.test(password)) {
-                                // Login successful
-                                alert('Login successful!');
-                                updateNavigationBar();
-                                window.location.href = 'menu.html';
-                            } else {
-                                // Invalid email or password format
-                                alert('Invalid email or password format. Please check the requirements.');
-                            }
-                        } else {
-                            // Incorrect password
-                            alert('Incorrect password. Please try again.');
-                        }
+                if (validUser) {
+                    // Email and password match
+                    if (emailRegex.test(email) && passwordRegex.test(password)) {
+                        // Login successful
+                        alert('Login successful!');
+                        updateNavigationBar();
+                        window.location.href = 'menu.html';
                     } else {
-                        // Invalid email
-                        alert('Invalid email or password.');
+                        // Invalid email or password format
+                        alert('Invalid email or password format. Please check the requirements.');
                     }
-                });
-            }
-
-
-            
-                /// Event listener for the registration form submission
-            const registerForm = document.getElementById('register-form');
-            if (registerForm) {
-                registerForm.addEventListener('submit', function(event) {
-                    event.preventDefault(); // Prevent the default form submission
-
-                    // Get the entered username, email, and password
-                    const username = document.getElementById('register-username').value;
-                    const email = document.getElementById('register-email').value;
-                    const password = document.getElementById('register-password').value;
-
-                    // Strict registration validation
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]).{8,}$/;
-
-                    if (!emailRegex.test(email)) {
-                        alert('Please enter a valid email address.');
-                        return;
-                    }
-
-                    if (!passwordRegex.test(password)) {
-                        alert('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.');
-                        return;
-                    }
-
-                    // Save the user information to localStorage
-                    saveUser(username, email, password);
-
-                    // Redirect the user to the homepage or another page
-                    window.location.href = 'index.html';
-                });
-            }
-    
-        // Event listener for the navigation links
-        document.querySelectorAll('.Navigation-Bar a').forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault(); // Prevent the default link behavior
-    
-                // Get the target URL from the clicked link
-                const targetUrl = link.getAttribute('href');
-    
-                // Redirect to the target URL
-                window.location.href = targetUrl;
+                } else {
+                    // Invalid email or password
+                    alert('Invalid email or password.');
+                }
             });
-        });
+        }
+
     
         // Render products on the menu page
         const productsContainer = document.getElementById("products-container");
@@ -503,8 +431,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
-
                 // Function to display the checkout items
             function checkout() {
                 window.location.href = 'checkout.html';
@@ -557,18 +483,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     
-        // Function to retrieve cart items
-        function getCartItems() {
-            const cart = JSON.parse(localStorage.getItem("cart")) || [];
-            const products = JSON.parse(localStorage.getItem("products")) || [];
-            return cart.map(cartItem => {
-                const product = products.find(p => p.id === cartItem.id);
-                return {
-                    ...product,
-                    quantity: cartItem.quantity
-                };
-            });
-        }
+                // Function to retrieve cart items
+            function getCartItems() {
+                return cart.map(cartItem => {
+                    const product = products.find(p => p.id === cartItem.id);
+                    return {
+                        ...product,
+                        quantity: cartItem.quantity
+                    };
+                });
+            }
+
+            // Function to update total price
+            function updateTotalPrice() {
+                const cartItems = getCartItems();
+                let totalPrice = 0;
+                cartItems.forEach(item => {
+                    totalPrice += item.price * item.quantity;
+                });
+                document.getElementById("total-price").textContent = totalPrice.toFixed(2);
+            }
     
         // Add to Cart button click event
         document.querySelectorAll(".add-to-cart-btn").forEach(button => {
@@ -696,22 +630,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-        // Event listener for the checkout form submission
+            // Event listener for the checkout form submission
         const checkoutForm = document.getElementById('checkout-form');
         if (checkoutForm) {
             checkoutForm.addEventListener('submit', (event) => {
                 event.preventDefault();
-    
+
                 const fullName = document.getElementById('full-name').value;
                 const address = document.getElementById('address').value;
                 const phone = document.getElementById('phone').value;
                 const paymentMethod = document.getElementById('payment-method').value;
-    
+
                 if (fullName && address && phone && paymentMethod) {
-                    alert('Thank You For Ordering, Your Order Will Now Be Delivered');
+                    alert(`Thank You For Ordering, Your Order Will Now Be Delivered.
+
+                    Full Name: ${fullName}
+                    Address: ${address}
+                    Phone: ${phone}
+                    Payment Method: ${paymentMethod}`);
+
                     // Clear the cart and reset the form
                     localStorage.removeItem('cart');
                     checkoutForm.reset();
+
                     // Redirect to the menu page or any other page
                     window.location.href = 'menu.html';
                 } else {
@@ -733,30 +674,30 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Event listener for the login/register form toggle
-const wrapper = document.querySelector('.wrapper');
-const loginLink = document.querySelector('.login-link');
-const registerLink = document.querySelector('.register-link');
-const btnPopup = document.querySelector('.btnLogin-popup');
-const iconClose = document.querySelector('.icon-close');
+    // Event listener for the login/register form toggle
+    const wrapper = document.querySelector('.wrapper');
+    const loginLink = document.querySelector('.login-link');
+    const registerLink = document.querySelector('.register-link');
+    const btnPopup = document.querySelector('.btnLogin-popup');
+    const iconClose = document.querySelector('.icon-close');
 
-if (wrapper && loginLink && registerLink && btnPopup && iconClose) {
-    btnPopup.addEventListener('click', () => {
-        wrapper.classList.add('active-popup');
-    });
+    if (wrapper && loginLink && registerLink && btnPopup && iconClose) {
+        btnPopup.addEventListener('click', () => {
+            wrapper.classList.add('active-popup');
+        });
 
-    iconClose.addEventListener('click', () => {
-        wrapper.classList.remove('active-popup');
-    });
+        iconClose.addEventListener('click', () => {
+            wrapper.classList.remove('active-popup');
+        });
 
-    registerLink.addEventListener('click', () => {
-        wrapper.classList.add('active');
-    });
+        registerLink.addEventListener('click', () => {
+            wrapper.classList.add('active');
+        });
 
-    loginLink.addEventListener('click', () => {
-        wrapper.classList.remove('active');
-    });
-}
+        loginLink.addEventListener('click', () => {
+            wrapper.classList.remove('active');
+        });
+    }
 
         // Array to hold cart items
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -877,4 +818,79 @@ if (wrapper && loginLink && registerLink && btnPopup && iconClose) {
                 }
             }
         });
-         
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const cartItemsElement = document.getElementById("cart-items");
+            const checkoutCartItemsElement = document.getElementById("checkout-cart-items");
+            const totalPriceElement = document.getElementById("total-price");
+            const checkoutButton = document.getElementById("checkout-button");
+        
+            // Function to calculate total price
+            const calculateTotalPrice = (cartItems) => {
+                return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+            };
+        
+            // Function to render cart items
+            const renderCartItems = (cartItems, containerElement) => {
+                containerElement.innerHTML = "";
+                cartItems.forEach(item => {
+                    const itemElement = document.createElement("div");
+                    itemElement.classList.add("cart-item");
+                    itemElement.innerHTML = `
+                        <p>${item.name}</p>
+                        <p>Price: $${item.price}</p>
+                        <p>Quantity: ${item.quantity}</p>
+                        <button class="remove-item" data-id="${item.id}">Remove</button>
+                    `;
+                    containerElement.appendChild(itemElement);
+                });
+            };
+        
+            // Function to update cart display
+            const updateCartDisplay = () => {
+                const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+                renderCartItems(cartItems, cartItemsElement);
+                if (checkoutCartItemsElement) {
+                    renderCartItems(cartItems, checkoutCartItemsElement);
+                }
+                totalPriceElement.innerText = calculateTotalPrice(cartItems);
+            };
+        
+            // Add event listener to remove buttons
+            document.body.addEventListener("click", (e) => {
+                if (e.target.classList.contains("remove-item")) {
+                    const itemId = e.target.dataset.id;
+                    let cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+                    cartItems = cartItems.filter(item => item.id !== itemId);
+                    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+                    updateCartDisplay();
+                }
+            });
+        
+            // Add event listener to checkout button
+            if (checkoutButton) {
+                checkoutButton.addEventListener("click", () => {
+                    window.location.href = "checkout.html";
+                });
+            }
+        
+            // Initialize cart display
+            updateCartDisplay();
+        
+            // Handle form submission for checkout
+            const checkoutForm = document.getElementById("checkout-form");
+            if (checkoutForm) {
+                checkoutForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    alert("Order placed successfully!");
+                    localStorage.removeItem("cartItems");
+                    updateCartDisplay();
+                    checkoutForm.reset();
+                });
+            }
+        });
+
+        
+
+        
+        
