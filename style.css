@@ -13,7 +13,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url('images/Kopiii.jpg')no-repeat;
+    background-color: skyblue;
     background-size: cover ;
     background-position: center;
 }
@@ -22,19 +22,28 @@ header {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    padding: 20px 100px;
+    height: 100vh; /* Set the height to 100% of the viewport height */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 99;
+    flex-direction: column; /* Change the flex direction to column */
+    justify-content: flex-start; /* Align items at the top */
+    align-items: flex-start; /* Align items to the left */
+    padding: 20px;
+    z-index: 999;
 }
 
 .CoffeeShop {
     font-size: 2em;
     color: azure;
     user-select: none;
+    margin-bottom: 20px; /* Add some spacing between the logo and navigation bar */
 }
+
+.Navigation-Bar {
+    display: flex;
+    flex-direction: column; /* Change the flex direction to column */
+    align-items: flex-start; /* Align navigation links to the left */
+}
+
 
 .Navigation-Bar a {
     position: relative;
@@ -42,7 +51,7 @@ header {
     color: azure;
     text-decoration: none;
     font-weight: 500;
-    margin-left: 40px;
+    margin-bottom: 30px; /* Add some spacing between navigation links */
 }
 
 .Navigation-Bar a::after {
@@ -525,5 +534,5 @@ header {
 
 .checkout-form button:hover {
     background-color: #555;
-}
 
+}

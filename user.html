@@ -63,7 +63,11 @@
     <header>
         <h2 class="CoffeeShop">CoffeeShop</h2>
         <nav class="Navigation-Bar">
-            <!-- Navigation links will be rendered here -->
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart</a>
+            <a href="checkout.html">Checkout</a>
+            <a href="user.html">Users</a>
+            <a href="admin.html">Admin</a>
         </nav>
     </header>
 
@@ -83,80 +87,6 @@
             <button id="delete-user-btn" class="delete-user-btn">Delete Account</button>
         </div>
     </section>
-
-    <script>
-        // Retrieve user information from localStorage
-        function getLoggedInUser() {
-            const userString = localStorage.getItem('loggedInUser');
-            return userString ? JSON.parse(userString) : null;
-        }
-
-        // Save user information to localStorage
-        function saveUser(username, email, password) {
-            const user = { username, email, password };
-            localStorage.setItem('loggedInUser', JSON.stringify(user));
-        }
-
-        // Render user information on the user page
-        function renderUserInfo() {
-            const userInfo = document.getElementById('user-info');
-            const loggedInUser = getLoggedInUser();
-
-            if (loggedInUser) {
-                userInfo.innerHTML = `
-                    <p>Username: ${loggedInUser.username}</p>
-                    <p>Email: ${loggedInUser.email}</p>
-                    <button id="logout-btn">Logout</button>
-                `;
-
-                // Add event listener for the logout button
-                const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', logoutUser);
-                }
-            } else {
-                // Redirect to the login page if the user is not logged in
-                window.location.href = 'index.html';
-            }
-        }
-
-        // Logout function for the logged-in user
-        function logoutUser() {
-            localStorage.removeItem('loggedInUser');
-            window.location.href = 'index.html';
-        }
-
-        // Update user information
-        const userUpdateForm = document.getElementById('user-update-form');
-        if (userUpdateForm) {
-            userUpdateForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const newUsername = document.getElementById('new-username').value;
-                const newEmail = document.getElementById('new-email').value;
-                const newPassword = document.getElementById('new-password').value;
-
-                const loggedInUser = getLoggedInUser();
-                if (loggedInUser) {
-                    saveUser(newUsername, newEmail, newPassword);
-                    renderUserInfo();
-                    alert('User information updated successfully!');
-                }
-            });
-        }
-
-        // Delete user account
-        const deleteUserBtn = document.getElementById('delete-user-btn');
-        if (deleteUserBtn) {
-            deleteUserBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete your account?')) {
-                    localStorage.removeItem('loggedInUser');
-                    window.location.href = 'index.html';
-                }
-            });
-        }
-
-        // Render user information on page load
-        renderUserInfo();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

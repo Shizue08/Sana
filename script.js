@@ -1,5 +1,7 @@
-// script.js
 document.addEventListener('DOMContentLoaded', function() {
+    // Render user information on page load
+    renderUserInfo();
+
     // Product data
     let products = JSON.parse(localStorage.getItem("products")) || [
         {
@@ -35,17 +37,119 @@ document.addEventListener('DOMContentLoaded', function() {
     // Retrieve the cart array from localStorage or initialize it as an empty array
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-            // Retrieve user information from localStorage
-        function getUser() {
-            const userString = localStorage.getItem('user');
-            return userString ? JSON.parse(userString) : null;
-        }
+    // Retrieve user information from localStorage
+    function getUser() {
+        const userString = localStorage.getItem('user');
+        return userString ? JSON.parse(userString) : null;
+    }
 
-        // Save user information to localStorage
-        function saveUser(username, email, password) {
-            const user = { username, email, password };
-            localStorage.setItem('user', JSON.stringify(user));
+    // Save user information to localStorage
+    function saveUser(username, email, password) {
+        const user = { username, email, password };
+        localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    // Function to check if a user is logged in
+    function isUserLoggedIn() {
+        const loggedInUser = getLoggedInUser();
+        return loggedInUser !== null;
+    }
+
+    function getLoggedInUser() {
+        const userString = localStorage.getItem('user');
+        return userString ? JSON.parse(userString) : null;
+    }
+
+    // Render user information on the user page
+    function renderUserInfo() {
+        const userInfo = document.getElementById('user-info');
+        const loggedInUser = getLoggedInUser();
+
+        if (userInfo) {
+            if (loggedInUser) {
+                userInfo.innerHTML = `
+                    <p>Username: ${loggedInUser.username}</p>
+                    <p>Email: ${loggedInUser.email}</p>
+                    <button id="logout-btn">Logout</button>
+                `;
+
+                // Add event listener for the logout button
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        localStorage.removeItem('user');
+                        renderUserInfo();
+                    });
+                }
+            } else {
+                userInfo.innerHTML = '<p>You are not logged in.</p>';
+            }
         }
+    }
+
+    // Logout function for the logged-in user
+    function logoutUser() {
+        localStorage.removeItem('registeredUsers');
+        window.location.href = 'index.html';
+    }
+
+    // Update user information
+    const userUpdateForm = document.getElementById('user-update-form');
+    if (userUpdateForm) {
+        userUpdateForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const newUsername = document.getElementById('new-username').value;
+            const newEmail = document.getElementById('new-email').value;
+            const newPassword = document.getElementById('new-password').value;
+
+            const loggedInUser = getLoggedInUser();
+            if (loggedInUser) {
+                saveUser(newUsername, newEmail, newPassword);
+                renderUserInfo();
+                alert('User information updated successfully!');
+
+                document.getElementById('new-username').value = '';
+                document.getElementById('new-email').value = '';
+                document.getElementById('new-password').value = '';    
+            }
+        });
+    }
+
+    // Delete user account
+    const deleteUserBtn = document.getElementById('delete-user-btn');
+    if (deleteUserBtn) {
+        deleteUserBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete your account?')) {
+                localStorage.removeItem('registeredUsers');
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    // Event listener for the login/register form toggle
+    const loginLink = document.querySelector('.login-link');
+    const registerLink = document.querySelector('.register-link');
+    const btnPopup = document.querySelector('.btnLogin-popup');
+    const iconClose = document.querySelector('.icon-close');
+    const wrapper = document.querySelector('.wrapper');
+
+    if (wrapper && loginLink && registerLink && btnPopup && iconClose) {
+        btnPopup.addEventListener('click', () => {
+            wrapper.classList.add('active-popup');
+        });
+
+        iconClose.addEventListener('click', () => {
+            wrapper.classList.remove('active-popup');
+        });
+
+        registerLink.addEventListener('click', () => {
+            wrapper.classList.add('active');
+        });
+
+        loginLink.addEventListener('click', () => {
+            wrapper.classList.remove('active');
+        });
+    }
 
     // Admin panel functionality
     const adminEmail = "admin@example.com";
@@ -128,8 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
             addProductForm.reset();
         });
 
-        
-
         productList.addEventListener("click", (event) => {
             if (event.target.classList.contains("edit-product")) {
                 const productItem = event.target.closest(".product-item");
@@ -171,173 +273,95 @@ document.addEventListener('DOMContentLoaded', function() {
                 const productIndex = Array.from(productList.children).indexOf(productItem);
 
                 if (confirm("Are you sure you want to delete this product?")) {
-                    products.splice(productIndex,
-                        1);
-                        localStorage.setItem("products", JSON.stringify(products));
-                        renderProductList();
-                    }
+                    products.splice(productIndex, 1);
+                    localStorage.setItem("products", JSON.stringify(products));
+                    renderProductList();
                 }
-            });
-        }
-        
-    
-        // Retrieve user information from localStorage
-function getLoggedInUser() {
-    const userString = localStorage.getItem('loggedInUser');
-    return userString ? JSON.parse(userString) : null;
-}
-
-// Save user information to localStorage
-function saveUser(username, email, password) {
-    const user = { username, email, password };
-    localStorage.setItem('loggedInUser', JSON.stringify(user));
-}
-
-// Update the navigation bar
-function updateNavigationBar() {
-    const navigationBar = document.querySelector('.Navigation-Bar');
-    const loggedInUser = getLoggedInUser();
-
-    // Clear the navigation bar
-    navigationBar.innerHTML = '';
-
-    if (loggedInUser) {
-        // User is logged in
-        const userLink = document.createElement('a');
-        userLink.href = 'user.html';
-        userLink.textContent = `User: ${loggedInUser.username}`;
-        navigationBar.appendChild(userLink);
-    } else {
-        // User is not logged in
-        const loginLink = document.createElement('a');
-        loginLink.href = 'index.html';
-        loginLink.textContent = 'Login';
-        navigationBar.appendChild(loginLink);
-
-        const registerLink = document.createElement('a');
-        registerLink.href = 'register.html';
-        registerLink.textContent = 'Register';
-        navigationBar.appendChild(registerLink);
+            }
+        });
     }
-}
 
-function updateNavigationBar() {
-    const navigationBar = document.querySelector('.Navigation-Bar');
-    const loggedInUser = getLoggedInUser();
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-    // Clear the navigation bar
-    navigationBar.innerHTML = '';
+    // Registration code
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
 
-    if (loggedInUser) {
-        // User is logged in
-        const userLink = document.createElement('a');
-        userLink.href = 'user.html';
-        userLink.textContent = `User: ${loggedInUser.username}`;
-        navigationBar.appendChild(userLink);
-
-        const menuLink = document.createElement('a');
-        menuLink.href = 'menu.html';
-        menuLink.textContent = 'Menu';
-        navigationBar.appendChild(menuLink);
-
-        const cartLink = document.createElement('a');
-        cartLink.href = 'cart.html';
-        cartLink.textContent = 'Cart';
-        navigationBar.appendChild(cartLink);
-    } else {
-        // User is not logged in
-        const loginLink = document.createElement('a');
-        loginLink.href = 'index.html';
-        loginLink.textContent = 'Login';
-        navigationBar.appendChild(loginLink);
-
-        const registerLink = document.createElement('a');
-        registerLink.href = 'register.html';
-        registerLink.textContent = 'Register';
-        navigationBar.appendChild(registerLink);
-    }
-}
-
-
+            // Get the registered users from localStorage
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-        // Registration code 
-        const registerForm = document.getElementById('register-form');
-        if (registerForm) {
-            registerForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const username = document.getElementById('register-username').value;
-                const email = document.getElementById('register-email').value;
-                const password = document.getElementById('register-password').value;
+            // Check if the username or email already exists
+            const usernameTaken = registeredUsers.some(user => user.username === username);
+            const emailTaken = registeredUsers.some(user => user.email === email);
 
-                // Check if the username or email already exists
-                const usernameTaken = registeredUsers.some(user => user.username === username);
-                const emailTaken = registeredUsers.some(user => user.email === email);
+            if (usernameTaken) {
+                alert('Username already taken. Please choose a different username.');
+            } else if (emailTaken) {
+                alert('Email already registered. Please use a different email.');
+            } else {
+                // Create a new user object
+                const newUser = {
+                    username,
+                    email,
+                    password
+                };
 
-                if (usernameTaken) {
-                    alert('Username already taken. Please choose a different username.');
-                } else if (emailTaken) {
-                    alert('Email already registered. Please use a different email.');
-                } else {
-                    // Create a new user object
-                    const newUser = {
-                        username,
-                        email,
-                        password
-                    };
+                // Add the new user to the registeredUsers array
+                registeredUsers.push(newUser);
 
-                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                // Store the updated registeredUsers array in localStorage
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
 
-                    // Add the new user to the registeredUsers array
-                    registeredUsers.push(newUser);
+                // Clear the form inputs
+                document.getElementById('register-username').value = '';
+                document.getElementById('register-email').value = '';
+                document.getElementById('register-password').value = '';
 
-                    // Clear the form inputs
-                    document.getElementById('register-username').value = '';
-                    document.getElementById('register-email').value = '';
-                    document.getElementById('register-password').value = '';
+                alert('Registration successful!');
+            }
+        });
+    }
 
-                    alert('Registration successful!');
-                }
-            });
-        }
+    // Login code
+    const loginForm = document.querySelector('.form-box.login form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
-        // Login code
-        const loginForm = document.querySelector('.form-box.login form');
-        if (loginForm) {
-            loginForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const email = document.getElementById('login-email').value;
-                const password = document.getElementById('login-password').value;
+            // Get the registered users from localStorage
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-                // Strict login validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]).{8,}$/;
+            // Check if the entered email and password match any registered user
+            const validUser = registeredUsers.find(user => user.email === email && user.password === password);
 
-                // Check if the entered email and password match any registered user
-                const validUser = registeredUsers.find(user => user.email === email && user.password === password);
+            if (validUser) {
+                // Email and password match
+                alert('Login successful!');
+                wrapper.classList.remove('active-popup');
 
-                if (validUser) {
-                    // Email and password match
-                    if (emailRegex.test(email) && passwordRegex.test(password)) {
-                        // Login successful
-                        alert('Login successful!');
-                        updateNavigationBar();
-                        window.location.href = 'menu.html';
-                    } else {
-                        // Invalid email or password format
-                        alert('Invalid email or password format. Please check the requirements.');
-                    }
-                } else {
-                    // Invalid email or password
-                    alert('Invalid email or password.');
-                }
-            });
-        }
+                // Save the logged-in user to localStorage
+                localStorage.setItem('user', JSON.stringify(validUser));
 
-    
-        // Render products on the menu page
-        const productsContainer = document.getElementById("products-container");
-        if (productsContainer) {
+                // Render user information
+                renderUserInfo();
+            } else {
+                // Invalid email or password
+                alert('Invalid email or password.');
+            }
+        });
+    }
+
+    // Render products on the menu page
+    const productsContainer = document.getElementById("products-container");
+    if (productsContainer) {
+        if (isUserLoggedIn()) {
             products.forEach(product => {
                 const productElement = document.createElement("div");
                 productElement.classList.add("menu-item", "flex");
@@ -352,7 +376,6 @@ function updateNavigationBar() {
                     </div>
                     <button class="add-to-cart-btn" id="${product.id}">Add to Cart</button>
                 `;
-    
                 // Toggle product description on hover
                 const productDescription = productElement.querySelector('.menuItem-des');
                 productElement.addEventListener('mouseenter', () => {
@@ -361,13 +384,17 @@ function updateNavigationBar() {
                 productElement.addEventListener('mouseleave', () => {
                     productDescription.style.display = 'none';
                 });
-    
+
                 productsContainer.appendChild(productElement);
             });
+        } else {
+            productsContainer.innerHTML = '<p>Please log in to view the product list.</p>';
         }
+    }
 
-                // Function to add items to the cart
-        function addToCart(name, image, description, price) {
+    // Function to add items to the cart
+    function addToCart(name, image, description, price) {
+        if (isUserLoggedIn()) {
             const item = {
                 id: name.toLowerCase().replace(/\s+/g, '-'),
                 name: name,
@@ -384,13 +411,17 @@ function updateNavigationBar() {
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartUI();
+        } else {
+            alert('Please log in to add products to your cart.');
         }
-            
-        // Function to update cart UI
-        function updateCartUI() {
-            const cartList = document.getElementById("cart-list");
-            const cartContainer = document.querySelector('.cart-container');
-            if (cartList && cartContainer) {
+    }
+
+    // Function to update cart UI
+    function updateCartUI() {
+        const cartList = document.getElementById("cart-list");
+        const cartContainer = document.querySelector('.cart-container');
+        if (cartList && cartContainer) {
+            if (isUserLoggedIn()) {
                 cartList.innerHTML = "";
                 let totalPrice = 0;
                 if (cart.length > 0) {
@@ -413,294 +444,279 @@ function updateNavigationBar() {
                                 <span class="discount-price">${(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                         `;
-                         // Toggle product description on hover
-                    const productDescription = cartItemElement.querySelector('.menuItem-des');
-                    cartItemElement.addEventListener('mouseenter', () => {
-                        productDescription.style.display = 'block';
+                        // Toggle product description on hover
+                        const productDescription = cartItemElement.querySelector('.menuItem-des');
+                        cartItemElement.addEventListener('mouseenter', () => {
+                            productDescription.style.display = 'block';
+                        });
+                        cartItemElement.addEventListener('mouseleave', () => {
+                            productDescription.style.display = 'none';
+                        });
+                
+                        cartList.appendChild(cartItemElement);
                     });
-                    cartItemElement.addEventListener('mouseleave', () => {
-                        productDescription.style.display = 'none';
-                    });
-
-                    cartList.appendChild(cartItemElement);
-                });
-            } else {
-                cartContainer.style.display = 'none';
-            }
-            document.getElementById("total-price").textContent = totalPrice.toFixed(2);
-        }
-    }
-
+                } else {
+                    cartList.innerHTML = '<p>Your cart is empty.</p>';
+                    cartContainer.style.display = 'none';
+                }
+                document.getElementById("total-price").textContent = totalPrice.toFixed(2);
+                } else {
+                    cartList.innerHTML = '<p>Please log in to view your cart.</p>';
+                    cartContainer.style.display = 'none';
+                }
+                }
+                }
+                
                 // Function to display the checkout items
-            function checkout() {
-                window.location.href = 'checkout.html';
-            }
-
-            // Function to handle placing an order
-            function placeOrder() {
-                alert('Your order has been placed!');
-                cart = [];
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartUI();
-                // Optionally, redirect to a different page
-                // window.location.href = 'order-confirmation.html';
-            }
-
-            // Initialize cart items on page load
-            document.addEventListener('DOMContentLoaded', function() {
-                if (document.querySelector('.cart-section') || document.querySelector('.checkout-section')) {
-                    updateCartUI();
+                function checkout() {
+                    window.location.href = 'cart.html';
                 }
-
-                const placeOrderBtn = document.getElementById('place-order-btn');
-                if (placeOrderBtn) {
-                    placeOrderBtn.addEventListener('click', placeOrder);
-                }
-            });
-
-            // Event listener for quantity change and remove item
-            document.addEventListener('click', function(event) {
-                if (event.target.classList.contains('remove-item')) {
-                    const id = event.target.getAttribute('data-id');
-                    cart = cart.filter(item => item.id !== id);
+                
+                // Function to handle placing an order
+                function placeOrder() {
+                    alert('Your order has been placed!');
+                    cart = [];
                     localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartUI();
-                    updateTotalPrice();
+                    // Optionally, redirect to a different page
+                    // window.location.href = 'order-confirmation.html';
                 }
-            });
-
-            document.addEventListener('input', function(event) {
-                if (event.target.classList.contains('item-quantity')) {
-                    const id = event.target.getAttribute('data-id');
-                    const quantity = parseInt(event.target.value);
-                    const item = cart.find(item => item.id === id);
-                    if (item) {
-                        item.quantity = quantity;
+                
+                // Initialize cart items on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (document.querySelector('.cart-section') || document.querySelector('.checkout-section')) {
+                        updateCartUI();
+                    }
+                
+                    const placeOrderBtn = document.getElementById('place-order-btn');
+                    if (placeOrderBtn) {
+                        placeOrderBtn.addEventListener('click', placeOrder);
+                    }
+                });
+                
+                // Event listener for quantity change and remove item
+                document.addEventListener('click', function(event) {
+                    if (event.target.classList.contains('remove-item')) {
+                        const id = event.target.getAttribute('data-id');
+                        cart = cart.filter(item => item.id !== id);
                         localStorage.setItem('cart', JSON.stringify(cart));
                         updateCartUI();
                         updateTotalPrice();
                     }
-                }
-            });
-    
-                // Function to retrieve cart items
-            function getCartItems() {
-                return cart.map(cartItem => {
-                    const product = products.find(p => p.id === cartItem.id);
-                    return {
-                        ...product,
-                        quantity: cartItem.quantity
-                    };
                 });
-            }
-
-            // Function to update total price
-            function updateTotalPrice() {
-                const cartItems = getCartItems();
-                let totalPrice = 0;
-                cartItems.forEach(item => {
-                    totalPrice += item.price * item.quantity;
-                });
-                document.getElementById("total-price").textContent = totalPrice.toFixed(2);
-            }
-    
-        // Add to Cart button click event
-        document.querySelectorAll(".add-to-cart-btn").forEach(button => {
-            button.addEventListener("click", () => {
-                const itemId = button.id;
-                const item = products.find(product => product.id === parseInt(itemId));
-                const existingItem = cart.find(cartItem => cartItem.id === item.id);
-                if (existingItem) {
-                    existingItem.quantity++;
-                } else {
-                    cart.push({ ...item, quantity: 1 });
-                }
-                localStorage.setItem("cart", JSON.stringify(cart));
-                updateCartUI();
-                updateTotalPrice();
-            });
-        });
-    
-        // Remove Item button click event
-        const cartList = document.getElementById("cart-list");
-        if (cartList) {
-            cartList.addEventListener("click", event => {
-                if (event.target.classList.contains("remove-item")) {
-                    const itemId = event.target.dataset.id;
-                    const existingItem = cart.find(item => item.id === parseInt(itemId));
-                    if (existingItem) {
-                        if (existingItem.quantity > 1) {
-                            existingItem.quantity--;
-                        } else {
-                            cart = cart.filter(item => item.id !== parseInt(itemId));
+                
+                document.addEventListener('input', function(event) {
+                    if (event.target.classList.contains('item-quantity')) {
+                        const id = event.target.getAttribute('data-id');
+                        const quantity = parseInt(event.target.value);
+                        const item = cart.find(item => item.id === id);
+                        if (item) {
+                            item.quantity = quantity;
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            updateCartUI();
+                            updateTotalPrice();
                         }
                     }
-                    localStorage.setItem("cart", JSON.stringify(cart));
-                    updateCartUI();
-                    updateTotalPrice();
+                });
+                
+                // Function to retrieve cart items
+                function getCartItems() {
+                    return cart.map(cartItem => {
+                        const product = products.find(p => p.id === cartItem.id);
+                        return {
+                            ...product,
+                            quantity: cartItem.quantity
+                        };
+                    });
                 }
-            });
-        }
-    
-      
-    
-        // Checkout process
-        const checkoutBtn = document.getElementById("checkout-btn");
-        if (checkoutBtn) {
-            checkoutBtn.addEventListener("click", () => {
+                
+                // Function to update total price
+                function updateTotalPrice() {
+                    const cartItems = getCartItems();
+                    let totalPrice = 0;
+                    cartItems.forEach(item => {
+                        totalPrice += item.price * item.quantity;
+                    });
+                    document.getElementById("total-price").textContent = totalPrice.toFixed(2);
+                }
+                
+                // Add to Cart button click event
+                document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+                    button.addEventListener("click", () => {
+                        const itemId = button.id;
+                        const item = products.find(product => product.id === parseInt(itemId));
+                        const existingItem = cart.find(cartItem => cartItem.id === item.id);
+                        if (existingItem) {
+                            existingItem.quantity++;
+                        } else {
+                            cart.push({ ...item, quantity: 1 });
+                        }
+                        localStorage.setItem("cart", JSON.stringify(cart));
+                        updateCartUI();
+                        updateTotalPrice();
+                    });
+                });
+                
+                // Remove Item button click event
+                const cartList = document.getElementById("cart-list");
+                if (cartList) {
+                    cartList.addEventListener("click", event => {
+                        if (event.target.classList.contains("remove-item")) {
+                            const itemId = event.target.dataset.id;
+                            const existingItem = cart.find(item => item.id === parseInt(itemId));
+                            if (existingItem) {
+                                if (existingItem.quantity > 1) {
+                                    existingItem.quantity--;
+                                } else {
+                                    cart = cart.filter(item => item.id !== parseInt(itemId));
+                                }
+                            }
+                            localStorage.setItem("cart", JSON.stringify(cart));
+                            updateCartUI();
+                            updateTotalPrice();
+                        }
+                    });
+                }
+                
+                // Checkout process
+                const checkoutBtn = document.getElementById("checkout-btn");
+                if (checkoutBtn) {
+                    checkoutBtn.addEventListener("click", () => {
+                        // Render cart items on the checkout page
+                        renderCartItemsOnCheckout();
+                
+                        // Hide the cart items container on the checkout page
+                        const cartItemsContainer = document.getElementById('checkout-cart-items');
+                        if (cartItemsContainer) {
+                            cartItemsContainer.classList.add('hidden-cart');
+                        }
+                
+                        // Navigate to the checkout page
+                        window.location.href = 'checkout.html';
+                    });
+                }
+                
                 // Render cart items on the checkout page
-                renderCartItemsOnCheckout();
-    
-                // Hide the cart items container on the checkout page
-                const cartItemsContainer = document.getElementById('checkout-cart-items');
-                cartItemsContainer.classList.add('hidden-cart');
-    
-                // Navigate to the checkout page
-                window.location.href = 'checkout.html';
-            });
-        }
-    
-        // Render cart items on the checkout page
-        function renderCartItemsOnCheckout() {
-            const cartItems = getCartItems();
-            const cartContainer = document.getElementById('checkout-cart-items');
-            cartContainer.innerHTML = ''; // Clear previous items
-    
-            if (cartItems.length === 0) {
-                const emptyMessage = document.createElement('p');
-                emptyMessage.textContent = 'Your cart is empty.';
-                cartContainer.appendChild(emptyMessage);
-            } else {
-                cartItems.forEach(item => {
-                    const cartItem = document.createElement('div');
-                    cartItem.classList.add('menu-item', 'flex');
-    
-                    cartItem.innerHTML = `
-                        <img src="${item.image}" alt="${item.name}" class="menu-img">
-                        <div class="menuItem-details">
-                            <h4 class="menuItem-topic">${item.name}</h4>
-                            <p class="menuItem-des">${item.description}</p>
-                        </div>
-                        <div class="menuItem-price flex">
-                            <span class="discount-price">${item.price.toFixed(2)}</span>
-                        </div>
-                        <div class="menu-item-quantity flex">
-                            <span>Quantity: ${item.quantity}</span>
-                        </div>
-                    `;
-    
-                   // Toggle product description on hover
-                const productDescription = cartItem.querySelector('.menuItem-des');
-                cartItem.addEventListener('mouseenter', () => {
-                    productDescription.style.display = 'block';
-                });
-                cartItem.addEventListener('mouseleave', () => {
-                    productDescription.style.display = 'none';
-                });
-
-                cartContainer.appendChild(cartItem);
-            });
-        }
-
-        updateTotalPrice();
-    }
-    
-        // Update total price on the checkout page
-        function updateTotalPrice() {
-            const cartItems = getCartItems();
-            let totalPrice = 0;
-            cartItems.forEach(item => {
-                totalPrice += item.price * item.quantity;
-            });
-            document.getElementById("total-price").textContent = totalPrice.toFixed(2);
-        }
-
-        // Event listener for quantity change
-    document.addEventListener('input', function(event) {
-        if (event.target.classList.contains('item-quantity')) {
-            const itemId = event.target.dataset.id;
-            const quantity = parseInt(event.target.value);
-            const item = cart.find(item => item.id === parseInt(itemId));
-            if (item) {
-                item.quantity = quantity;
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartUI();
-                updateTotalPrice();
-            }
-        }
-    });
-    
-            // Event listener for the checkout form submission
-        const checkoutForm = document.getElementById('checkout-form');
-        if (checkoutForm) {
-            checkoutForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-
-                const fullName = document.getElementById('full-name').value;
-                const address = document.getElementById('address').value;
-                const phone = document.getElementById('phone').value;
-                const paymentMethod = document.getElementById('payment-method').value;
-
-                if (fullName && address && phone && paymentMethod) {
-                    alert(`Thank You For Ordering, Your Order Will Now Be Delivered.
-
-                    Full Name: ${fullName}
-                    Address: ${address}
-                    Phone: ${phone}
-                    Payment Method: ${paymentMethod}`);
-
-                    // Clear the cart and reset the form
-                    localStorage.removeItem('cart');
-                    checkoutForm.reset();
-
-                    // Redirect to the menu page or any other page
-                    window.location.href = 'menu.html';
-                } else {
-                    alert('Please fill in all the required fields.');
+                function renderCartItemsOnCheckout() {
+                    const cartItems = getCartItems();
+                    const cartContainer = document.getElementById('checkout-cart-items');
+                    if (cartContainer) {
+                        if (isUserLoggedIn()) {
+                            cartContainer.innerHTML = ''; // Clear previous items
+                
+                            if (cartItems.length === 0) {
+                                const emptyMessage = document.createElement('p');
+                                emptyMessage.textContent = 'Your cart is empty.';
+                                cartContainer.appendChild(emptyMessage);
+                            } else {
+                                cartItems.forEach(item => {
+                                    const cartItem = document.createElement('div');
+                                    cartItem.classList.add('menu-item', 'flex');
+                
+                                    cartItem.innerHTML = `
+                                        <img src="${item.image}" alt="${item.name}" class="menu-img">
+                                        <div class="menuItem-details">
+                                            <h4 class="menuItem-topic">${item.name}</h4>
+                                            <p class="menuItem-des">${item.description}</p>
+                                        </div>
+                                        <div class="menuItem-price flex">
+                                            <span class="discount-price">${item.price.toFixed(2)}</span>
+                                        </div>
+                                        <div class="menu-item-quantity flex">
+                                            <span>Quantity: ${item.quantity}</span>
+                                        </div>
+                                    `;
+                
+                                    // Toggle product description on hover
+                                    const productDescription = cartItem.querySelector('.menuItem-des');
+                                    cartItem.addEventListener('mouseenter', () => {
+                                        productDescription.style.display = 'block';
+                                    });
+                                    cartItem.addEventListener('mouseleave', () => {
+                                        productDescription.style.display = 'none';
+                                    });
+                
+                                    cartContainer.appendChild(cartItem);
+                                });
+                            }
+                
+                            updateTotalPrice();
+                        } else {
+                            cartContainer.innerHTML = '<p>Please log in to view your checkout items.</p>';
+                        }
+                    }
                 }
-            });
-        }
-    
-         // Initial render
-    document.addEventListener('DOMContentLoaded', function() {
-        renderCartItems();
-        updateTotalPrice();
-
-        // Show the cart items container on the checkout page
-        const cartItemsContainer = document.getElementById('checkout-cart-items');
-        if (cartItemsContainer) {
-            cartItemsContainer.classList.remove('hidden-cart');
-        }
-    });
-});
-
-    // Event listener for the login/register form toggle
-    const wrapper = document.querySelector('.wrapper');
-    const loginLink = document.querySelector('.login-link');
-    const registerLink = document.querySelector('.register-link');
-    const btnPopup = document.querySelector('.btnLogin-popup');
-    const iconClose = document.querySelector('.icon-close');
-
-    if (wrapper && loginLink && registerLink && btnPopup && iconClose) {
-        btnPopup.addEventListener('click', () => {
-            wrapper.classList.add('active-popup');
-        });
-
-        iconClose.addEventListener('click', () => {
-            wrapper.classList.remove('active-popup');
-        });
-
-        registerLink.addEventListener('click', () => {
-            wrapper.classList.add('active');
-        });
-
-        loginLink.addEventListener('click', () => {
-            wrapper.classList.remove('active');
-        });
-    }
-
-        // Array to hold cart items
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                
+                // Update total price on the checkout page
+                function updateTotalPrice() {
+                    const cartItems = getCartItems();
+                    let totalPrice = 0;
+                    cartItems.forEach(item => {
+                        totalPrice += item.price * item.quantity;
+                    });
+                    document.getElementById("total-price").textContent = totalPrice.toFixed(2);
+                }
+                
+                // Event listener for quantity change
+                document.addEventListener('input', function(event) {
+                    if (event.target.classList.contains('item-quantity')) {
+                        const itemId = event.target.dataset.id;
+                        const quantity = parseInt(event.target.value);
+                        const item = cart.find(item => item.id === parseInt(itemId));
+                        if (item) {
+                            item.quantity = quantity;
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            updateCartUI();
+                            updateTotalPrice();
+                        }
+                    }
+                });
+                
+                // Event listener for the checkout form submission
+                const checkoutForm = document.getElementById('checkout-form');
+                if (checkoutForm) {
+                    checkoutForm.addEventListener('submit', (event) => {
+                        event.preventDefault();
+                
+                        const fullName = document.getElementById('full-name').value;
+                        const address = document.getElementById('address').value;
+                        const phone = document.getElementById('phone').value;
+                        const paymentMethod = document.getElementById('payment-method').value;
+                
+                        if (fullName && address && phone && paymentMethod) {
+                            alert(`Thank You For Ordering, Your Order Will Now Be Delivered.
+                
+                Full Name: ${fullName}
+                Address: ${address}
+                Phone: ${phone}
+                Payment Method: ${paymentMethod}`);
+                
+                            // Clear the cart and reset the form
+                            localStorage.removeItem('cart');
+                            checkoutForm.reset();
+                
+                            // Redirect to the menu page or any other page
+                            window.location.href = 'menu.html';
+                        } else {
+                            alert('Please fill in all the required fields.');
+                        }
+                    });
+                }
+                
+                // Initial render
+                document.addEventListener('DOMContentLoaded', function() {
+                    renderCartItems();
+                    updateTotalPrice();
+                
+                    // Show the cart items container on the checkout page
+                    const cartItemsContainer = document.getElementById('checkout-cart-items');
+                    if (cartItemsContainer) {
+                        cartItemsContainer.classList.remove('hidden-cart');
+                    }
+                });
+                });
+                
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
         // Function to add items to the cart
         function addToCart(name, image, description, price) {
@@ -889,8 +905,3 @@ function updateNavigationBar() {
                 });
             }
         });
-
-        
-
-        
-        
